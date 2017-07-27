@@ -94,9 +94,7 @@ main.o: e:/3ds/NKStreamer/NKStreamer/source/main.cpp \
  e:/3ds/NKStreamer/NKStreamer/build/OpenSans_ttf.h \
  e:/3ds/NKStreamer/NKStreamer/include/SocketManager.h \
  e:/3ds/NKStreamer/NKStreamer/include/Message.h \
- c:/devkitPro/libctru/include/sfil.h \
- e:/3ds/NKStreamer/NKStreamer/include/NKMutex.h \
- e:/3ds/NKStreamer/NKStreamer/include/NKLogger.h
+ e:/3ds/NKStreamer/NKStreamer/include/NKMutex.h
 
 c:/devkitPro/libctru/include/3ds.h:
 
@@ -288,8 +286,4 @@ e:/3ds/NKStreamer/NKStreamer/include/SocketManager.h:
 
 e:/3ds/NKStreamer/NKStreamer/include/Message.h:
 
-c:/devkitPro/libctru/include/sfil.h:
-
 e:/3ds/NKStreamer/NKStreamer/include/NKMutex.h:
-
-e:/3ds/NKStreamer/NKStreamer/include/NKLogger.h:

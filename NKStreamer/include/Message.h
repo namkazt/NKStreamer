@@ -61,7 +61,6 @@ public:
 	u32 TotalSize;
 	u32 CSize;
 	char* Content;
-private:
 	u32 Received;
 
 public:

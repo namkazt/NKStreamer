@@ -65,11 +65,11 @@
     <NMakeOutput>
     </NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <IncludePath>C:\devkitPro\devkitARM\arm-none-eabi\include;C:\devkitPro\libctru\include;\include;C:\devkitPro\portlibs\include;C:\devkitPro\libwebp\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\devkitPro\devkitARM\arm-none-eabi\include;C:\devkitPro\libctru\include;\include;C:\devkitPro\portlibs\armv6k\include;$(IncludePath)</IncludePath>
     <NMakeBuildCommandLine>make &amp; start make send</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>make clean all</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
-    <NMakeIncludeSearchPath>C:\devkitPro\libctru\include;C:\devkitPro\devkitARM\arm-none-eabi\include;include;C:\devkitPro\portlibs\include;C:\devkitPro\libwebp\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeIncludeSearchPath>C:\devkitPro\libctru\include;C:\devkitPro\devkitARM\arm-none-eabi\include;include;C:\devkitPro\portlibs\armv6k\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Citra|Win32'">
     <NMakeOutput>

@@ -91,7 +91,11 @@ UIHelper.o: e:/3ds/NKStreamer/NKStreamer/source/UIHelper.cpp \
  c:/devkitPro/libctru/include/c3d/renderqueue.h \
  e:/3ds/NKStreamer/NKStreamer/build/FreeSans_ttf.h \
  e:/3ds/NKStreamer/NKStreamer/build/OpenSans_ttf.h \
- c:/devkitPro/libctru/include/sftd.h
+ c:/devkitPro/libctru/include/sftd.h \
+ c:/devkitPro/portlibs/armv6k/include/jpeglib.h \
+ c:/devkitPro/portlibs/armv6k/include/jconfig.h \
+ c:/devkitPro/portlibs/armv6k/include/jmorecfg.h \
+ c:/devkitPro/portlibs/armv6k/include/turbojpeg.h
 
 e:/3ds/NKStreamer/NKStreamer/include/UIHelper.h:
 
@@ -278,3 +282,11 @@ e:/3ds/NKStreamer/NKStreamer/build/FreeSans_ttf.h:
 e:/3ds/NKStreamer/NKStreamer/build/OpenSans_ttf.h:
 
 c:/devkitPro/libctru/include/sftd.h:
+
+c:/devkitPro/portlibs/armv6k/include/jpeglib.h:
+
+c:/devkitPro/portlibs/armv6k/include/jconfig.h:
+
+c:/devkitPro/portlibs/armv6k/include/jmorecfg.h:
+
+c:/devkitPro/portlibs/armv6k/include/turbojpeg.h:

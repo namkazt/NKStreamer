@@ -70,7 +70,10 @@ SocketManager.o: e:/3ds/NKStreamer/NKStreamer/source/SocketManager.cpp \
  c:/devkitPro/libctru/include/3ds/romfs.h \
  c:/devkitPro/libctru/include/3ds/font.h \
  e:/3ds/NKStreamer/NKStreamer/include/Message.h \
- c:/devkitPro/libctru/include/sfil.h c:/devkitPro/libctru/include/sf2d.h \
+ e:/3ds/NKStreamer/NKStreamer/include/NKMutex.h \
+ e:/3ds/NKStreamer/NKStreamer/include/UIHelper.h \
+ c:/devkitPro/libctru/include/arpa/inet.h \
+ c:/devkitPro/libctru/include/sf2d.h \
  c:/devkitPro/libctru/include/citro3d.h \
  c:/devkitPro/libctru/include/c3d/types.h \
  c:/devkitPro/libctru/include/c3d/maths.h \
@@ -89,18 +92,9 @@ SocketManager.o: e:/3ds/NKStreamer/NKStreamer/source/SocketManager.cpp \
  c:/devkitPro/libctru/include/c3d/framebuffer.h \
  c:/devkitPro/libctru/include/c3d/renderbuffer.h \
  c:/devkitPro/libctru/include/c3d/renderqueue.h \
- e:/3ds/NKStreamer/NKStreamer/include/NKMutex.h \
- c:/devkitPro/portlibs/armv6k/include/jpeglib.h \
- c:/devkitPro/portlibs/armv6k/include/jconfig.h \
- c:/devkitPro/portlibs/armv6k/include/jmorecfg.h \
- e:/3ds/NKStreamer/NKStreamer/include/UIHelper.h \
- c:/devkitPro/libctru/include/arpa/inet.h \
  e:/3ds/NKStreamer/NKStreamer/build/FreeSans_ttf.h \
  e:/3ds/NKStreamer/NKStreamer/build/OpenSans_ttf.h \
- c:/devkitPro/libctru/include/sftd.h \
- c:/devkitPro/libwebp/include/webp/decode.h \
- c:\devkitpro\libwebp\include\webp\types.h \
- c:/devkitPro/libctru/include/netdb.h
+ c:/devkitPro/libctru/include/sftd.h c:/devkitPro/libctru/include/netdb.h
 
 e:/3ds/NKStreamer/NKStreamer/include/SocketManager.h:
 
@@ -244,7 +238,11 @@ c:/devkitPro/libctru/include/3ds/font.h:
 
 e:/3ds/NKStreamer/NKStreamer/include/Message.h:
 
-c:/devkitPro/libctru/include/sfil.h:
+e:/3ds/NKStreamer/NKStreamer/include/NKMutex.h:
+
+e:/3ds/NKStreamer/NKStreamer/include/UIHelper.h:
+
+c:/devkitPro/libctru/include/arpa/inet.h:
 
 c:/devkitPro/libctru/include/sf2d.h:
 
@@ -284,26 +282,10 @@ c:/devkitPro/libctru/include/c3d/renderbuffer.h:
 
 c:/devkitPro/libctru/include/c3d/renderqueue.h:
 
-e:/3ds/NKStreamer/NKStreamer/include/NKMutex.h:
-
-c:/devkitPro/portlibs/armv6k/include/jpeglib.h:
-
-c:/devkitPro/portlibs/armv6k/include/jconfig.h:
-
-c:/devkitPro/portlibs/armv6k/include/jmorecfg.h:
-
-e:/3ds/NKStreamer/NKStreamer/include/UIHelper.h:
-
-c:/devkitPro/libctru/include/arpa/inet.h:
-
 e:/3ds/NKStreamer/NKStreamer/build/FreeSans_ttf.h:
 
 e:/3ds/NKStreamer/NKStreamer/build/OpenSans_ttf.h:
 
 c:/devkitPro/libctru/include/sftd.h:
-
-c:/devkitPro/libwebp/include/webp/decode.h:
-
-c:\devkitpro\libwebp\include\webp\types.h:
 
 c:/devkitPro/libctru/include/netdb.h:

@@ -21,15 +21,12 @@ typedef SSIZE_T ssize_t;
 #endif
 
 #include <3ds.h>
-#include <iostream>
 #include <sf2d.h>
 #include <sftd.h>
 #include <csignal>
-#include <citro3d.h>
 
 #include "UIHelper.h"
 #include "SocketManager.h"
-#include "NKLogger.h"
 
 int main()
 {
@@ -47,8 +44,6 @@ int main()
 	//---------------------------------------------
 	UIHelper* uiHelper = new UIHelper();
 	uiHelper->InitServices();
-	InitLogger();
-	//Log("Test logger");
 	//---------------------------------------------
 	// Init SF2D
 	//---------------------------------------------
@@ -75,7 +70,7 @@ int main()
 	SocketManager *sockMng = new SocketManager();
 	std::vector<SocketManager*> socketThreads;
 	const int THREADNUM = 6;
-	for(int i = 0; i < THREADNUM; i++)
+	for (int i = 0; i < THREADNUM; i++)
 	{
 		SocketManager *sockThread = new SocketManager();
 		if (i == 0) sockMng = sockThread;
@@ -149,7 +144,7 @@ int main()
 			if (uiHelper->ReleaseDpadRIGHTButton()) sockMng->SendInputMesssage(INPUT_PACKET_RIGHT_D, true);
 		}
 
-		
+
 		//-------------------------------------------------------
 		//-------------------------------------------------------
 		// draw
@@ -185,7 +180,7 @@ int main()
 				_maxIfd = maxFrame;
 				printf(">>Draw frame.\n");
 				if (frameTexture != nullptr) sf2d_free_texture(frameTexture);
-				frameTexture = sfil_load_JPEG_buffer(msg->Content + 4, msg->TotalSize - 9, SF2D_PLACE_RAM);
+				frameTexture = uiHelper->loadJPEGBuffer(msg->Content + 4, msg->TotalSize - 9, SF2D_PLACE_RAM);
 			}
 			//-------------------------------------
 			if (frameTexture != nullptr) {
@@ -213,7 +208,7 @@ int main()
 #else
 		if (sockMng->sharedConnectionState >= 3 && _isStreaming)
 		{
-			int maxFrame = 0;
+			int maxFrame = -1;
 			Message* msg = nullptr;
 			for (int i = 0; i < THREADNUM; i++)
 			{
@@ -230,25 +225,28 @@ int main()
 				}
 			}
 			//-------------------------------------
+			// only can happen when circle the frame happen
+			if (maxFrame < _maxIfd - 10000) _maxIfd = maxFrame;
+			//-------------------------------------
 			// parse new message
-			if (msg != nullptr)
+			if (msg != nullptr && maxFrame >= _maxIfd)
 			{
+				_maxIfd = maxFrame;
 				printf(">>Draw frame.\n");
 				if (frameTexture != nullptr) sf2d_free_texture(frameTexture);
-				frameTexture = sfil_load_JPEG_buffer(msg->Content + 4, msg->TotalSize - 9, SF2D_PLACE_RAM);
+				frameTexture = uiHelper->loadJPEGBuffer(msg->Content + 4, msg->TotalSize - 9, SF2D_PLACE_RAM);
 			}
-
 			//-------------------------------------
 			/*if (frameTexture != nullptr) {
-				sf2d_start_frame(GFX_TOP, GFX_LEFT);
-				try {
-					sf2d_draw_texture(frameTexture, 400 / 2 - frameTexture->width / 2, 240 / 2 - frameTexture->height / 2);
-				}
-				catch (...)
-				{
-					printf("Can't draw texture.\n");
-				}
-				sf2d_end_frame();
+			sf2d_start_frame(GFX_TOP, GFX_LEFT);
+			try {
+			sf2d_draw_texture(frameTexture, 400 / 2 - frameTexture->width / 2, 240 / 2 - frameTexture->height / 2);
+			}
+			catch (...)
+			{
+			printf("Can't draw texture.\n");
+			}
+			sf2d_end_frame();
 			}*/
 		}
 #endif
@@ -261,19 +259,19 @@ int main()
 		uiHelper->StartGUI(320, 240);
 		//--------------------------------------------------
 		// Top panel
-		uiHelper->GUI_Panel(0, 0, 320, 25, "NKStreamer - v0.4 - alpha [Experiment]", 13);
+		uiHelper->GUI_Panel(0, 0, 320, 25, "NKStreamer - v0.5.2 - alpha", 13);
 		uiHelper->setMargin(10, 10, 10, 0);
 		//--------------------------------------------------
 		// IP input
 		const char* newIP = uiHelper->GUI_TextInput(0, 40, 200, 25, _ipInput, "Server IP: 192.168.31.222");
-		if(newIP != nullptr)
+		if (newIP != nullptr)
 		{
 			bzero(_ipInput, 16);
 			memcpy(_ipInput, newIP, 16);
 		}
 		//--------------------------------------------------
 		// IP input
-		const char* newPort = uiHelper->GUI_TextInput(210 , 40, 100, 25, _portInput, "Server Port: 1234");
+		const char* newPort = uiHelper->GUI_TextInput(210, 40, 100, 25, _portInput, "Server Port: 1234");
 		if (newPort != nullptr)
 		{
 			bzero(_portInput, 8);
@@ -283,7 +281,7 @@ int main()
 		//--------------------------------------------------
 		// Connect button
 		uiHelper->setMargin(0, 0, 0, 0);
-		if(sockMng->sharedConnectionState == 0)
+		if (sockMng->sharedConnectionState == 0)
 		{
 			if (uiHelper->GUI_Button(10, 90, 70, 25, "Connect"))
 			{
@@ -300,7 +298,8 @@ int main()
 					socketThreads[i]->Connect();
 				}
 			}
-		}else if (sockMng->sharedConnectionState == 1 || sockMng->sharedConnectionState == 2)
+		}
+		else if (sockMng->sharedConnectionState == 1 || sockMng->sharedConnectionState == 2)
 		{
 			if (uiHelper->GUI_Button(10, 90, 70, 25, "Connecting...."))
 			{
@@ -338,11 +337,12 @@ int main()
 			// start stream button
 			if (uiHelper->GUI_Button(200, 90, 100, 25, !_isStreaming ? "Begin Stream" : "End Stream"))
 			{
-				if(!_isStreaming)
+				if (!_isStreaming)
 				{
 					sockMng->SendMessageWithCode(START_STREAM_PACKET);
 					_isStreaming = true;
-				}else
+				}
+				else
 				{
 					sockMng->SendMessageWithCode(STOP_STREAM_PACKET);
 					_isStreaming = false;
@@ -354,7 +354,7 @@ int main()
 		uiHelper->setMargin(0, 0, 0, 0);
 		uiHelper->GUI_Panel(0, 240 - 20, 320, 20, _logInformation, 10);
 		uiHelper->EndGUI();
-		
+
 		sf2d_end_frame();
 		//--------------------------------------------------
 		// end input
@@ -372,7 +372,6 @@ int main()
 	}
 	printf("End all services\n");
 	//----------------------------------
-	EndLogger();
 	uiHelper->EndServices();
 	sf2d_fini();
 	//----------------------------------

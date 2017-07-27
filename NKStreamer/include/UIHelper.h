@@ -93,6 +93,9 @@ public:
 
 	void LoadFonts();
 
+
+	sf2d_texture* loadJPEGBuffer_Turbo(const void *buffer, unsigned long buffer_size, sf2d_place place);
+	sf2d_texture* loadJPEGBuffer(const void *buffer, unsigned long buffer_size, sf2d_place place);
 	//---------------------------------
 	// Input
 	void StartInput();

@@ -54,12 +54,12 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 
 CFLAGS	+=	$(INCLUDE) -DARM9 -D_3DS
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11 -fexceptions
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11 -fexceptions -fpermissive
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:=  -lwebp -lsf2d -lsfil -lsftd -lpng -ljpeg -lcitro3d -lctru -lm -lfreetype -lz
+LIBS	:= -lturbojpeg -lsf2d -lsftd -lcitro3d -lctru -lm -lfreetype -lz
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

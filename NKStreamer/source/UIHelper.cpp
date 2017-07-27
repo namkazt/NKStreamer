@@ -1,5 +1,6 @@
 ﻿#include "UIHelper.h"
-
+#include <jpeglib.h>
+#include <turbojpeg.h>
 
 UIHelper::UIHelper()
 {
@@ -8,10 +9,12 @@ UIHelper::UIHelper()
 
 void UIHelper::InitServices()
 {
+	aptInit();
+	
 	//---------------------------------------------
 	// Init ROMFS
 	//---------------------------------------------
-	Result rc = romfsInit();
+	/*Result rc = romfsInit();
 	if (rc) {
 		printf("romfsInit: %08lX\n", rc);
 		return;
@@ -19,14 +22,13 @@ void UIHelper::InitServices()
 	else
 	{
 		printf("romfs Init Successful!\n");
-	}
+	}*/
 	//---------------------------------------------
 	// Init SOCKET
 	//---------------------------------------------
 	SOC_buffer = (u32*)memalign(SOC_ALIGN, SOC_BUFFERSIZE);
 	u32 ret = socInit(SOC_buffer, SOC_BUFFERSIZE);
 	if (ret != 0) {
-		printf("romfsInit: %08lX\n", rc);
 		return;
 	}
 	printf("Init SOC service successfully.\n");
@@ -38,13 +40,129 @@ void UIHelper::EndServices()
 	free(SOC_buffer);
 	SOC_buffer = NULL;
 
-	romfsExit();
+	aptExit();
 }
 
 void UIHelper::LoadFonts()
 {
 	font_FreeSans = sftd_load_font_mem(FreeSans_ttf, FreeSans_ttf_size);
 	font_OpenSans = sftd_load_font_mem(OpenSans_ttf, OpenSans_ttf_size);
+}
+
+sf2d_texture* UIHelper::loadJPEGBuffer_Turbo(const void* buffer, unsigned long buffer_size, sf2d_place place)
+{
+	int jpegSubsamp, width, height;
+	tjhandle _jpegDecompressor = tjInitDecompress();
+	if(tjDecompressHeader2(_jpegDecompressor, (unsigned char*)buffer, buffer_size, &width, &height, &jpegSubsamp) != 0)
+	{
+		printf("Err : tjDecompressHeader2 - %s\n", tjGetErrorStr());
+		return nullptr;
+	}
+	printf("w: %d, h: %d, samp: %d\n", width, height, jpegSubsamp);
+
+	unsigned long texSize = TJBUFSIZE(width, height);
+	uint8_t * texData = (uint8_t *)malloc(texSize);
+	if(texData == NULL)
+	{
+		printf("Err : malloc - %s\n", strerror(errno));
+		return nullptr;
+	}
+
+	if(tjDecompress2(_jpegDecompressor, (unsigned char*)buffer, buffer_size, texData, width, 0/*pitch*/, height, TJPF_RGB, TJFLAG_FASTDCT) != 0)
+	{
+		printf("Err : tjDecompress2 - %s\n", tjGetErrorStr());
+		return nullptr;
+	}
+
+	printf("texSize: %d\n", texSize);
+	printf("calculated Size: %d\n", width*height * 3);
+
+	sf2d_texture *texture = sf2d_create_texture(width, height, TEXFMT_RGBA8, place);
+	if(!texture)
+	{
+		printf("Err : create texture\n");
+		return nullptr;
+	}
+
+	unsigned int rowStrice = width * 3;
+	unsigned int x, y, color;
+	unsigned int *row_ptr = texture->tex.data;
+
+	for (y = 0; y < height; y++)
+	{
+		unsigned int *tex_ptr = row_ptr;
+		for (x = 0; x < rowStrice; x+=3)
+		{
+			color = texData[x + (rowStrice * y)] |
+				texData[x + (rowStrice * y) + 1] << 8 |
+				texData[x + (rowStrice * y) + 2] << 16 | 0xFF000000;
+			 *(tex_ptr++) = color;
+		}
+		row_ptr += width;
+	}
+	
+	
+
+	sf2d_texture_tile32(texture);
+
+
+	if (texData) {
+		free(texData);
+	}
+	tjDestroy(_jpegDecompressor);
+
+	return texture;
+}
+
+sf2d_texture* UIHelper::loadJPEGBuffer(const void *srcBuf, unsigned long buffer_size, sf2d_place place)
+{
+	struct jpeg_decompress_struct jinfo;
+	struct jpeg_error_mgr jerr;
+	jinfo.err = jpeg_std_error(&jerr);
+	jpeg_create_decompress(&jinfo);
+	jpeg_mem_src(&jinfo, (void *)srcBuf, buffer_size);
+	jpeg_read_header(&jinfo, 1);
+
+
+	int row_bytes = jinfo.image_width * 3;
+	jpeg_start_decompress(&jinfo);
+
+	sf2d_texture *texture = sf2d_create_texture(jinfo.image_width,jinfo.image_height, TEXFMT_RGBA8, place);
+	if (!texture)
+	{
+		printf("Err : create texture\n");
+		return nullptr;
+	}
+
+	JSAMPARRAY buffer = (JSAMPARRAY)malloc(sizeof(JSAMPROW));
+	buffer[0] = (JSAMPROW)malloc(sizeof(JSAMPLE) * row_bytes);
+
+	unsigned int i, color;
+	const unsigned char *jpeg_ptr;
+	unsigned int *row_ptr = texture->tex.data;
+
+	while (jinfo.output_scanline < jinfo.output_height) {
+		jpeg_read_scanlines(&jinfo, buffer, 1);
+		unsigned int *tex_ptr = row_ptr;
+		for (i = 0, jpeg_ptr = buffer[0]; i < jinfo.output_width; i++, jpeg_ptr += 3) {
+			color = jpeg_ptr[0];
+			color |= jpeg_ptr[1] << 8;
+			color |= jpeg_ptr[2] << 16;
+			*(tex_ptr++) = color | 0xFF000000;
+		}
+		// Next row.
+		row_ptr += texture->tex.width;
+	}
+
+	jpeg_finish_decompress(&jinfo);
+
+	free(buffer[0]);
+	free(buffer);
+
+	sf2d_texture_tile32(texture);
+
+	jpeg_destroy_decompress(&jinfo);
+	return texture;
 }
 
 void UIHelper::StartInput()
@@ -113,7 +231,7 @@ bool UIHelper::PressYButton()
 {
 	return downEvent & KEY_Y;
 }
-
+ 
 bool UIHelper::PressLButton()
 {
 	return downEvent & KEY_L;
@@ -248,7 +366,7 @@ void UIHelper::ShowInputKeyboard(SwkbdCallbackFn callback, const char* initText)
 	swkbdInit(&keyboardState, SWKBD_TYPE_WESTERN, 2, -1);
 	swkbdSetInitialText(&keyboardState, initText);
 	swkbdSetValidation(&keyboardState, SWKBD_NOTEMPTY_NOTBLANK, 0, 0);
-	if(callback != nullptr) swkbdSetFilterCallback(&keyboardState, callback, NULL);
+	//if(callback != nullptr) swkbdSetFilterCallback(&keyboardState, callback, NULL);
 	keyboardButton = swkbdInputText(&keyboardState, keyboardBuffer, sizeof(keyboardBuffer));
 }
 

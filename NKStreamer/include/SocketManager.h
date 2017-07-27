@@ -6,7 +6,6 @@
 #include <3ds.h>
 #include <string.h>
 #include "Message.h"
-#include <sfil.h>
 #include <functional>
 #include <queue>
 #include "NKMutex.h"
@@ -20,7 +19,7 @@ class SocketManager
 {
 public:
 	u32 sock = -1;
-	
+
 	struct sockaddr_in server;
 	struct in_addr ipAddress;
 	Message *message = nullptr;
@@ -33,7 +32,6 @@ public:
 	int sharedConnectionState = 0;
 
 	volatile int FrameIndex = 0;
-	sf2d_texture* DrawingTex = nullptr;
 	NewFrameCallback OnNewFrameCallback = nullptr;
 	ConnectCallback OnConnectSuccess = nullptr;
 	ConnectCallback OnConnectFail = nullptr;
@@ -51,7 +49,7 @@ public:
 
 	void Listen();
 	bool SendMessage(void* message, size_t size);
-	
+
 	void Close();
 
 	void SendMessageWithCode(char code);

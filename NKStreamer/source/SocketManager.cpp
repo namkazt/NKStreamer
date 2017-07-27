@@ -7,12 +7,8 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <unistd.h>
-
 #include <fcntl.h>
-
-#include <jpeglib.h>
 #include "UIHelper.h"
-#include <webp/decode.h>
 
 #include <sys/types.h>
 
@@ -33,7 +29,7 @@ bool SocketManager::SetServer(const char* ip, uint16_t port)
 	bzero((char *)&server, sizeof(server));
 	server.sin_family = AF_INET;
 	struct hostent* host = gethostbyname(ip);
-	if(host == nullptr)
+	if (host == nullptr)
 	{
 		printf("Fail to get host address.\n");
 		return false;
@@ -79,17 +75,17 @@ void sockThreadMain(void *arg)
 		}
 		////--------------------------------------------------
 		//// Trying to connect
-		if(sockManager->sharedConnectionState == 1)
+		if (sockManager->sharedConnectionState == 1)
 		{
 			sockManager->sharedConnectionState = 2;
 			////--------------------------------------------------
 			//// define socket
 			sockManager->sock = socket(AF_INET, SOCK_STREAM, 0);
-			if(sockManager->sock == -1)
+			if (sockManager->sock == -1)
 			{
 				sockManager->sharedConnectionState = 0;
 				printf("[Error] Can't create socket.\n");
-				continue; 
+				continue;
 			}
 			////--------------------------------------------------
 			auto ret = connect(sockManager->sock, reinterpret_cast<const sockaddr*>(&sockManager->server), sizeof(sockManager->server));
@@ -115,7 +111,7 @@ void sockThreadMain(void *arg)
 			//--------------------------------------------------
 			printf("[Socket Thread] Connect to server success.\n");
 		}
-		
+
 		svcSleepThread(sleepDuration);
 	}
 
@@ -147,8 +143,8 @@ void SocketManager::Listen()
 	bzero(buffer, bufferSize);
 	//----------------------------------
 	int recvAmount = recv(sock, buffer, bufferSize, 0);
-	if (recvAmount < 0){
-		if(errno != EWOULDBLOCK)
+	if (recvAmount < 0) {
+		if (errno != EWOULDBLOCK)
 		{
 			printf("Error when recv amount of data: %d", recvAmount);
 			// should be close socket on this cause.
@@ -202,7 +198,8 @@ void SocketManager::ProcessData(const char* data, size_t size)
 			}
 			}
 
-		}catch(...)
+		}
+		catch (...)
 		{
 			printf("[Error] Parse error message code: %c size: %i.\n", message->MessageCode, message->TotalSize);
 		}
@@ -243,7 +240,7 @@ bool SocketManager::SendMessage(void* message, size_t size)
 		int sendAmount = send(sock, message, size, 0);
 		if (sendAmount < 0)
 		{
-			if(!isConnected)
+			if (!isConnected)
 			{
 				printf("[Error]socket closed .\n");
 				return false;;
@@ -267,7 +264,7 @@ void SocketManager::Close()
 		sharedConnectionState = 0;
 		isConnected = false;
 		Result rc = shutdown(sock, SHUT_WR);
-		if(rc != 0)
+		if (rc != 0)
 		{
 			printf("Shutdown Socket Errror.\n");
 		}
@@ -326,7 +323,7 @@ void SocketManager::SendInputMesssage(char code, bool up)
 	*data++ = msg->TotalSize >> 8;
 	*data++ = msg->TotalSize >> 16;
 	*data++ = msg->TotalSize >> 24;
-	if(up) *data++ = char(2);
+	if (up) *data++ = char(2);
 	else *data++ = char(1);
 	SendMessage(msgContent, msg->TotalSize);
 

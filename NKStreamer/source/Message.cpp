@@ -15,9 +15,9 @@ Message::Message()
 
 int Message::ReadMessageFromData(const char* data, size_t size)
 {
-	//printf("Recv: %d \n", size);
 	if(Received == 0)
 	{
+		printf("Parse header\n");
 		//---------------------------------------
 		// start read header of message
 		//---------------------------------------
@@ -28,7 +28,8 @@ int Message::ReadMessageFromData(const char* data, size_t size)
 			(u32)data[4] << 24;
 		Received += 5;
 		CSize = TotalSize - 5;
-		//printf("MSG: %d - total: %d  - content size: %d\n", MessageCode, TotalSize, CSize);
+
+		printf("total size: %d \n", TotalSize);
 		////---------------------------------------
 		if(CSize == 0)
 		{
@@ -41,7 +42,7 @@ int Message::ReadMessageFromData(const char* data, size_t size)
 		Content = (char*)malloc(sizeof(char) * CSize);
 		if(TotalSize >= size)
 		{
-			memcpy(Content, data + 5, (size - 5));
+			memcpy(Content, data + 5, size - 5);
 			Received += size - 5;
 			return TotalSize > size ? -1 : 0;
 		}else
@@ -55,8 +56,10 @@ int Message::ReadMessageFromData(const char* data, size_t size)
 		if(size + Received >= TotalSize)
 		{
 			int cutOffset = TotalSize - Received;
+			printf("cal OF: %d  - total size: %d \n", cutOffset, TotalSize);
 			memcpy(Content + (Received-5), data, cutOffset);
 			Received += cutOffset;
+			
 			if (size - cutOffset == 0) return 0;
 			return cutOffset;
 		}else
