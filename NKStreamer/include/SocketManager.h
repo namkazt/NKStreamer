@@ -44,7 +44,7 @@ public:
 	bool IsBusy = false;
 	bool SetServer(const char* ip, uint16_t port);
 	bool Connect();
-	void StartThread(s32 prio);
+	void StartThread(s32 prio, int order);
 	void EndThread();
 
 	void Listen();

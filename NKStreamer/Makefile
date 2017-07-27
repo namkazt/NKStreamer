@@ -35,7 +35,7 @@ BUILD		:=	build
 SOURCES		:=	source
 DATA		:=	data
 INCLUDES	:=	include
-ROMFS		:=	romfs
+#ROMFS		:=	romfs
 
 APP_TITLE					:= NKStreamer
 APP_DESCRIPTION				:= 3DS Client - PC Desktop Streaming
@@ -52,7 +52,7 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-fomit-frame-pointer -ffunction-sections \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -DARM9 -D_3DS
+CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11 -fexceptions -fpermissive
 
@@ -65,7 +65,7 @@ LIBS	:= -lturbojpeg -lsf2d -lsftd -lcitro3d -lctru -lm -lfreetype -lz
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(CTRULIB) $(PORTLIBS) $(DEVKITPRO)/libwebp
+LIBDIRS	:= $(CTRULIB) $(PORTLIBS)
 
 
 #---------------------------------------------------------------------------------

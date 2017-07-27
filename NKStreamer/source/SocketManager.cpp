@@ -52,13 +52,13 @@ void sockThreadMain(void *arg)
 	SocketManager* sockManager = (SocketManager*)arg;
 	sockManager->queueFrames = std::queue<Message*>();
 	//--------------------------------------------------
-	u64 sleepDuration = 1000000ULL * 2;
+	u64 sleepDuration = 1000000ULL * 16;
 	int i = 0;
 	while (runThreads)
 	{
 		////--------------------------------------------------
 		//// define socket
-		if (sockManager->isConnected && sockManager->sharedConnectionState)
+		if (sockManager->isConnected && sockManager->sharedConnectionState == 3)
 		{
 			//--------------------------------------------------
 			// receive data from server
@@ -117,7 +117,7 @@ void sockThreadMain(void *arg)
 
 }
 
-void SocketManager::StartThread(s32 prio)
+void SocketManager::StartThread(s32 prio, int order)
 {
 	printf("[Socket Thread] Start thread.\n");
 	sockThread = threadCreate(sockThreadMain, this, STACKSIZE, prio - 1, -2, false);

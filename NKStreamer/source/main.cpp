@@ -54,6 +54,7 @@ int main()
 	sftd_init();
 	uiHelper->LoadFonts();
 	//---------------------------------------------
+	gfxSetDoubleBuffering(GFX_TOP, true);
 
 #ifdef _CONSOLE_DEBUGING
 	PrintConsole consoleTOp;
@@ -67,26 +68,20 @@ int main()
 	//---------------------------------------------
 	// Init Streaming thread
 	//---------------------------------------------
-	SocketManager *sockMng = new SocketManager();
 	std::vector<SocketManager*> socketThreads;
-	const int THREADNUM = 6;
-	for (int i = 0; i < THREADNUM; i++)
+	int THREADNUM = 4;
+	//------------------
+	SocketManager *sockMng = new SocketManager();
+	sockMng->OnConnectSuccess = [&_logInformation](void* arg)
 	{
-		SocketManager *sockThread = new SocketManager();
-		if (i == 0) sockMng = sockThread;
-
-		sockThread->OnConnectSuccess = [&_logInformation](void* arg)
-		{
-			bzero(_logInformation, 256);
-			sprintf(_logInformation, "Connected to server");
-		};
-		sockThread->OnConnectFail = [&_logInformation](void* arg)
-		{
-			bzero(_logInformation, 256);
-			sprintf(_logInformation, "[Error] Can't connect to server.");
-		};
-		socketThreads.push_back(sockThread);
-	}
+		bzero(_logInformation, 256);
+		sprintf(_logInformation, "Connected to server");
+	};
+	sockMng->OnConnectFail = [&_logInformation](void* arg)
+	{
+		bzero(_logInformation, 256);
+		sprintf(_logInformation, "[Error] Can't connect to server.");
+	};
 
 	sf2d_texture* frameTexture = nullptr;
 	//---------------------------------------------
@@ -144,12 +139,9 @@ int main()
 			if (uiHelper->ReleaseDpadRIGHTButton()) sockMng->SendInputMesssage(INPUT_PACKET_RIGHT_D, true);
 		}
 
-
 		//-------------------------------------------------------
 		//-------------------------------------------------------
 		// draw
-
-
 
 #ifndef _CONSOLE_DEBUGING
 		if (sockMng->sharedConnectionState >= 3 && _isStreaming)
@@ -251,7 +243,6 @@ int main()
 		}
 #endif
 
-
 		//--------------------------------------------------
 		// Draw UI
 		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
@@ -288,14 +279,35 @@ int main()
 				short port = atoi(_portInput);
 				for (int i = 0; i < THREADNUM; i++)
 				{
-					if (!socketThreads[i]->SetServer(_ipInput, port))
+					SocketManager *sockThread = nullptr;
+					if (i > 0) {
+						sockThread = new SocketManager();
+						sockThread->OnConnectSuccess = [&_logInformation](void* arg)
+						{
+							bzero(_logInformation, 256);
+							sprintf(_logInformation, "Connected to server");
+						};
+						sockThread->OnConnectFail = [&_logInformation](void* arg)
+						{
+							bzero(_logInformation, 256);
+							sprintf(_logInformation, "[Error] Can't connect to server.");
+						};
+					}else
+					{
+						sockThread = sockMng;
+					}
+					
+					if (!sockThread->SetServer(_ipInput, port))
 					{
 						bzero(_logInformation, 256);
 						sprintf(_logInformation, "[Error] Can't parse server infor");
 						continue;
 					}
-					socketThreads[i]->StartThread(prio);
-					socketThreads[i]->Connect();
+					//-------------------------------------------
+					sockThread->StartThread(prio, i);
+					sockThread->Connect();
+					//-------------------------------------------
+					socketThreads.push_back(sockThread);
 				}
 			}
 		}
@@ -313,6 +325,7 @@ int main()
 				for (int i = 0; i < THREADNUM; i++)
 				{
 					socketThreads[i]->Close();
+					socketThreads[i]->EndThread();
 				}
 			}
 		}
