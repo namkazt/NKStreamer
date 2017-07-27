@@ -30,14 +30,10 @@ typedef SSIZE_T ssize_t;
 
 int main()
 {
-	//APT_SetAppCpuTimeLimit(50);
+	std::string ipInput = "192.168.31.222";
 	//---------------------------------------------
 	// Variables
 	//---------------------------------------------
-	char _logInformation[256] = "";
-	char _ipInput[16] = "192.168.31.222";
-	char _portInput[8] = "1234";
-	bool _isStreaming = false;
 	int _maxIfd = -1;
 	//---------------------------------------------
 	// Init UI Helper for services
@@ -72,17 +68,6 @@ int main()
 	int THREADNUM = 4;
 	//------------------
 	SocketManager *sockMng = new SocketManager();
-	sockMng->OnConnectSuccess = [&_logInformation](void* arg)
-	{
-		bzero(_logInformation, 256);
-		sprintf(_logInformation, "Connected to server");
-	};
-	sockMng->OnConnectFail = [&_logInformation](void* arg)
-	{
-		bzero(_logInformation, 256);
-		sprintf(_logInformation, "[Error] Can't connect to server.");
-	};
-
 	sf2d_texture* frameTexture = nullptr;
 	//---------------------------------------------
 	//Main loop
@@ -96,6 +81,7 @@ int main()
 		// as defined first sock connect to server is main.
 		//--------------------------------------------------
 		// INPUT REQUEST
+		//-------------------------------------------------------
 		if (sockMng->sharedConnectionState >= 3 && sockMng->isConnected)
 		{
 			//--------------------------------------------------
@@ -139,12 +125,13 @@ int main()
 			if (uiHelper->ReleaseDpadRIGHTButton()) sockMng->SendInputMesssage(INPUT_PACKET_RIGHT_D, true);
 		}
 
-		//-------------------------------------------------------
+
 		//-------------------------------------------------------
 		// draw
+		//-------------------------------------------------------
 
 #ifndef _CONSOLE_DEBUGING
-		if (sockMng->sharedConnectionState >= 3 && _isStreaming)
+		if (sockMng->sharedConnectionState >= 3 && uiHelper->isStreaming)
 		{
 			int maxFrame = -1;
 			Message* msg = nullptr;
@@ -198,7 +185,7 @@ int main()
 			sf2d_end_frame();
 		}
 #else
-		if (sockMng->sharedConnectionState >= 3 && _isStreaming)
+		if (sockMng->sharedConnectionState >= 3 && uiHelper->isStreaming)
 		{
 			int maxFrame = -1;
 			Message* msg = nullptr;
@@ -245,127 +232,23 @@ int main()
 
 		//--------------------------------------------------
 		// Draw UI
+		//-------------------------------------------------------
 		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
 
 		uiHelper->StartGUI(320, 240);
-		//--------------------------------------------------
-		// Top panel
-		uiHelper->GUI_Panel(0, 0, 320, 25, "NKStreamer - v0.5.2 - alpha", 13);
-		uiHelper->setMargin(10, 10, 10, 0);
-		//--------------------------------------------------
-		// IP input
-		const char* newIP = uiHelper->GUI_TextInput(0, 40, 200, 25, _ipInput, "Server IP: 192.168.31.222");
-		if (newIP != nullptr)
-		{
-			bzero(_ipInput, 16);
-			memcpy(_ipInput, newIP, 16);
-		}
-		//--------------------------------------------------
-		// IP input
-		const char* newPort = uiHelper->GUI_TextInput(210, 40, 100, 25, _portInput, "Server Port: 1234");
-		if (newPort != nullptr)
-		{
-			bzero(_portInput, 8);
-			memcpy(_portInput, newPort, 8);
-		}
-
-		//--------------------------------------------------
-		// Connect button
-		uiHelper->setMargin(0, 0, 0, 0);
-		if (sockMng->sharedConnectionState == 0)
-		{
-			if (uiHelper->GUI_Button(10, 90, 70, 25, "Connect"))
-			{
-				short port = atoi(_portInput);
-				for (int i = 0; i < THREADNUM; i++)
-				{
-					SocketManager *sockThread = nullptr;
-					if (i > 0) {
-						sockThread = new SocketManager();
-						sockThread->OnConnectSuccess = [&_logInformation](void* arg)
-						{
-							bzero(_logInformation, 256);
-							sprintf(_logInformation, "Connected to server");
-						};
-						sockThread->OnConnectFail = [&_logInformation](void* arg)
-						{
-							bzero(_logInformation, 256);
-							sprintf(_logInformation, "[Error] Can't connect to server.");
-						};
-					}else
-					{
-						sockThread = sockMng;
-					}
-					
-					if (!sockThread->SetServer(_ipInput, port))
-					{
-						bzero(_logInformation, 256);
-						sprintf(_logInformation, "[Error] Can't parse server infor");
-						continue;
-					}
-					//-------------------------------------------
-					sockThread->StartThread(prio, i);
-					sockThread->Connect();
-					//-------------------------------------------
-					socketThreads.push_back(sockThread);
-				}
-			}
-		}
-		else if (sockMng->sharedConnectionState == 1 || sockMng->sharedConnectionState == 2)
-		{
-			if (uiHelper->GUI_Button(10, 90, 70, 25, "Connecting...."))
-			{
-				//printf("Connection:  %d?\n", sockMng->sharedConnectionState);
-			}
-		}
-		else if (sockMng->sharedConnectionState >= 3)
-		{
-			if (uiHelper->GUI_Button(10, 90, 70, 25, "Stop"))
-			{
-				for (int i = 0; i < THREADNUM; i++)
-				{
-					socketThreads[i]->Close();
-					socketThreads[i]->EndThread();
-				}
-			}
-		}
-
-		//--------------------------------------------------
-		// Exit button
-		uiHelper->setMargin(0, 0, 0, 0);
-		if (uiHelper->GUI_Button(10, 190, 50, 25, "Exit"))
-		{
-			break;
-		}
-
-		//--------------------------------------------------
-		// options
-
-		uiHelper->setMargin(0, 0, 0, 0);
-		uiHelper->GUI_Panel(0, 125, 320, 5, "", 10);
-
-		if (sockMng->sharedConnectionState >= 3 && sockMng->isConnected)
-		{
-			//--------------------------------------------------
-			// start stream button
-			if (uiHelper->GUI_Button(200, 90, 100, 25, !_isStreaming ? "Begin Stream" : "End Stream"))
-			{
-				if (!_isStreaming)
-				{
-					sockMng->SendMessageWithCode(START_STREAM_PACKET);
-					_isStreaming = true;
-				}
-				else
-				{
-					sockMng->SendMessageWithCode(STOP_STREAM_PACKET);
-					_isStreaming = false;
-				}
-			}
-		}
 
 
-		uiHelper->setMargin(0, 0, 0, 0);
-		uiHelper->GUI_Panel(0, 240 - 20, 320, 20, _logInformation, 10);
+		if(uiHelper->HasPopup())
+		{
+			auto func = uiHelper->GetPopup();
+			func();
+
+		}else
+		{
+			int uiSceneMain = uiHelper->SceneMain(sockMng, THREADNUM, prio, &socketThreads);
+			if (uiSceneMain == SCENE_EXIT) break;
+		}
+
 		uiHelper->EndGUI();
 
 		sf2d_end_frame();
@@ -373,17 +256,20 @@ int main()
 		// end input
 		//--------------------------------------------------
 		uiHelper->EndInput();
-
+		//-------------------------------------------------------
 		sf2d_swapbuffers();
 	}
 
 	//----------------------------------
-	for (int i = 0; i < THREADNUM; i++)
+	// close sock if inited
+	if(socketThreads.size() > 0)
 	{
-		socketThreads[i]->Close();
-		socketThreads[i]->EndThread();
+		for (int i = 0; i < THREADNUM; i++)
+		{
+			socketThreads[i]->Close();
+			socketThreads[i]->EndThread();
+		}
 	}
-	printf("End all services\n");
 	//----------------------------------
 	uiHelper->EndServices();
 	sf2d_fini();

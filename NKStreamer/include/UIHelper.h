@@ -14,13 +14,20 @@
 #include "FreeSans_ttf.h"
 #include "OpenSans_ttf.h"
 #include <sftd.h>
-#include <queue>
-#include <map>
+#include "SocketManager.h"
 
 #define SOC_ALIGN       0x1000
 #define SOC_BUFFERSIZE  0x100000
 
-static std::queue<int> messages;
+#define SCENE_EXIT		-999
+#define SCENE_DISMISS	-1
+#define SCENE_OK		0	
+
+
+typedef std::function<void()> CallbackVoid;
+typedef std::function<void(void* arg)> CallbackVoid_1;
+typedef std::function<void(void* arg, void* arg2)> CallbackVoid_2;
+typedef std::function<void(void* arg, void* arg2, void* arg3)> CallbackVoid_3;
 
 struct Rect
 {
@@ -42,13 +49,8 @@ class UIHelper
 {
 private:
 	Rect guiArea;
-	Rect guiPadding;
-	Rect guiMargin;
-
-
-
 public:
-
+	std::vector<CallbackVoid> popupQueue;
 
 	//---------------------------------
 	// Themes color define
@@ -100,12 +102,6 @@ public:
 	// Input
 	void StartInput();
 	void EndInput();
-	
-	void StartUpdateKeyboard();
-	void ShowInputKeyboard(SwkbdCallbackFn callback, const char* initText = "");
-	void ShowNumberKeyboard(SwkbdCallbackFn callback, size_t count, const char* initText = "");
-	void ShowNumberKeyboardWithDot(SwkbdCallbackFn callback, size_t count, const char* initText = "");
-	const char* EndUpdateKeyboard();
 
 	static SwkbdCallbackResult IPInputValidate(void* user, const char** ppMessage, const char* text, size_t textlen);
 	//---------------------------------
@@ -150,17 +146,33 @@ public:
 	void StartGUI( u32 w, u32 h);
 	void EndGUI();
 
-	void setPadding(u32 left, u32 top, u32 right, u32 bottom);
-	void setMargin(u32 left, u32 top, u32 right, u32 bottom);
+	void GUI_Panel(u32 x, u32 y, u32 w, u32 h, const char * text, int size = 13, u32 color = UIHelper::Col_Primary);
 
-	void GUI_Panel(u32 x, u32 y, u32 w, u32 h, const char * text, int size = 13);
-
-	bool GUI_Button(u32 x, u32 y, u32 w, u32 h, const char * text);
-	const char* GUI_TextInput(u32 x, u32 y, u32 w, u32 h, const char * text, const char* placeHolder, int size = 13);
+	bool GUI_Button(u32 x, u32 y, u32 w, u32 h, const char * text, int size = 13);
+	bool GUI_TextInput(u32 x, u32 y, u32 w, u32 h, const char * text, const char* placeHolder, int size = 13, CallbackVoid callback = nullptr);
 
 	//---------------------------------
-	// GUI Draw
+	// GUI Event
 	bool IsContainTouch(u32 x, u32 y, u32 w, u32 h);
+
+	//---------------------------------
+	// GUI Variables
+	char _logInformation[256] = "";
+	std::string _ipInput = "192.168.31.222";
+	std::string _portInput = "1234";
+
+	std::string _inputTextBackupValue = "";
+
+	//---------------------------------
+	// GUI Scene
+	bool isStreaming = false;
+	int SceneMain(SocketManager* sockMng, int THREADNUM, u32 prio, std::vector<SocketManager*> *socketThreads);
+	int SceneInputNumber(const char* label, std::string *inputvalue, CallbackVoid_1 onCancel = nullptr, CallbackVoid_1 onOk = nullptr);
+
+	bool HasPopup() { return popupQueue.size() > 0; }
+	CallbackVoid GetPopup() { return popupQueue[popupQueue.size() - 1]; }
+	void ClosePopup() { popupQueue.erase(popupQueue.end() - 1); }
+	u32 GetRGBA(char r, char g, char b, char a);
 };
 
 

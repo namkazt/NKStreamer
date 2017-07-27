@@ -92,6 +92,9 @@ UIHelper.o: e:/3ds/NKStreamer/NKStreamer/source/UIHelper.cpp \
  e:/3ds/NKStreamer/NKStreamer/build/FreeSans_ttf.h \
  e:/3ds/NKStreamer/NKStreamer/build/OpenSans_ttf.h \
  c:/devkitPro/libctru/include/sftd.h \
+ e:/3ds/NKStreamer/NKStreamer/include/SocketManager.h \
+ e:/3ds/NKStreamer/NKStreamer/include/Message.h \
+ e:/3ds/NKStreamer/NKStreamer/include/NKMutex.h \
  c:/devkitPro/portlibs/armv6k/include/jpeglib.h \
  c:/devkitPro/portlibs/armv6k/include/jconfig.h \
  c:/devkitPro/portlibs/armv6k/include/jmorecfg.h \
@@ -282,6 +285,12 @@ e:/3ds/NKStreamer/NKStreamer/build/FreeSans_ttf.h:
 e:/3ds/NKStreamer/NKStreamer/build/OpenSans_ttf.h:
 
 c:/devkitPro/libctru/include/sftd.h:
+
+e:/3ds/NKStreamer/NKStreamer/include/SocketManager.h:
+
+e:/3ds/NKStreamer/NKStreamer/include/Message.h:
+
+e:/3ds/NKStreamer/NKStreamer/include/NKMutex.h:
 
 c:/devkitPro/portlibs/armv6k/include/jpeglib.h:
 
