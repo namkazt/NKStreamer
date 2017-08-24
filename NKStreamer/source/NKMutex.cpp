@@ -2,46 +2,21 @@
 #include <memory>
 #include <map>
 
-static std::map<std::string, NKMutex*> mutexHolder;
-
-NKMutex* NKMutex::createMutex()
+void NKMutex::lock()
 {
-	NKMutex* ret = new NKMutex();
-	svcCreateMutex(&ret->mutex, true);
-	return ret;
+	_isLocked = true;
+	this->mutex = Handle();
+	svcCreateMutex(&this->mutex, true);
 }
 
-void NKMutex::NK_LOCK(const char* name)
+void NKMutex::wait()
 {
-	if(mutexHolder.find(name) != mutexHolder.end())
-	{
-		NKMutex* m = mutexHolder[name];
-		m->waitIfLock();
-	}else
-	{
-		NKMutex* m = NKMutex::createMutex();
-		mutexHolder[name] = m;
-	}
-}
-
-void NKMutex::NK_UNLOCK(const char* name)
-{
-	if (mutexHolder.find(name) != mutexHolder.end())
-	{
-		NKMutex* m = mutexHolder[name];
-		m->unlock();
-		delete m;
-		mutexHolder.erase(name);
-	}
-}
-
-
-void NKMutex::waitIfLock()
-{
-	svcWaitSynchronization(mutex, U64_MAX);
+	if(_isLocked)
+		svcWaitSynchronization(mutex, U64_MAX);
 }
 
 void NKMutex::unlock()
 {
+	_isLocked = false;
 	svcReleaseMutex(mutex);
 }

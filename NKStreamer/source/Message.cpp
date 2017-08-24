@@ -9,15 +9,17 @@ Message::Message()
 	TotalSize = 0;
 	CSize = 0;
 	Received = 0;
-	Content = nullptr;
 }
 
+Message::~Message()
+{
+	if (Content != nullptr) free(Content);
+}
 
 int Message::ReadMessageFromData(const char* data, size_t size)
 {
 	if(Received == 0)
 	{
-		printf("Parse header\n");
 		//---------------------------------------
 		// start read header of message
 		//---------------------------------------
@@ -28,12 +30,9 @@ int Message::ReadMessageFromData(const char* data, size_t size)
 			(u32)data[4] << 24;
 		Received += 5;
 		CSize = TotalSize - 5;
-
-		printf("total size: %d \n", TotalSize);
 		////---------------------------------------
-		if(CSize == 0)
+		if(CSize <= 0)
 		{
-			Content = nullptr;
 			if (TotalSize == size) return 0;
 			int cutOffset = size - TotalSize;
 			return cutOffset;
@@ -56,7 +55,6 @@ int Message::ReadMessageFromData(const char* data, size_t size)
 		if(size + Received >= TotalSize)
 		{
 			int cutOffset = TotalSize - Received;
-			printf("cal OF: %d  - total size: %d \n", cutOffset, TotalSize);
 			memcpy(Content + (Received-5), data, cutOffset);
 			Received += cutOffset;
 			
@@ -71,16 +69,15 @@ int Message::ReadMessageFromData(const char* data, size_t size)
 	return -1;
 }
 
-void Message::Build(const char* content, size_t contentSize, char* dest)
+int Message::GetFrameIndex()
 {
-	dest = (char*)malloc(sizeof(char) * contentSize);
-	//--------------------------------------
-	char* data = dest;
-	*data++ = this->MessageCode;
-	*data++ = this->TotalSize;
-	*data++ = this->TotalSize >> 8;
-	*data++ = this->TotalSize >> 16;
-	*data++ = this->TotalSize >> 24;
-	if (content != nullptr)
-		memcpy(data, content, contentSize-5);
+	if(CSize >= 9 && Received >= 9)
+	{
+		int frameIndex = (u32)Content[0] |
+			(u32)Content[1] << 8 |
+			(u32)Content[2] << 16 |
+			(u32)Content[3] << 24;
+		return frameIndex;
+	}
+	return -1;
 }

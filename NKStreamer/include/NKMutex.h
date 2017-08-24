@@ -4,13 +4,11 @@
 
 class NKMutex
 {
+	volatile bool _isLocked = false;
 public:
 	Handle mutex;
-	static NKMutex* createMutex();
 
-	static void NK_LOCK(const char* name);
-	static void NK_UNLOCK(const char* name);
-
-	void waitIfLock();
+	void lock();
+	void wait();
 	void unlock();
 };
