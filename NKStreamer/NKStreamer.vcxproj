@@ -65,21 +65,21 @@
     <NMakeOutput>
     </NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <IncludePath>C:\devkitPro\devkitARM\arm-none-eabi\include;C:\devkitPro\libctru\include;\include;C:\devkitPro\portlibs\armv6k\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\devkitPro\devkitARM\arm-none-eabi\include;C:\devkitPro\libctru\include;\include;C:\devkitPro\portlibs\armv6k\include;C:\devkitPro\libwebp\src;$(IncludePath)</IncludePath>
     <NMakeBuildCommandLine>make &amp; start make send</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>make clean all</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
-    <NMakeIncludeSearchPath>C:\devkitPro\libctru\include;C:\devkitPro\devkitARM\arm-none-eabi\include;include;C:\devkitPro\portlibs\armv6k\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeIncludeSearchPath>C:\devkitPro\libctru\include;C:\devkitPro\devkitARM\arm-none-eabi\include;include;C:\devkitPro\portlibs\armv6k\include;C:\devkitPro\libwebp\src;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Citra|Win32'">
     <NMakeOutput>
     </NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <IncludePath>C:\devkitPro\devkitARM\arm-none-eabi\include;C:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\devkitPro\devkitARM\arm-none-eabi\include;C:\devkitPro\libctru\include;C:\devkitPro\libwebp\include;$(IncludePath)</IncludePath>
     <NMakeBuildCommandLine>make &amp; start make run</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>make clean all</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
-    <NMakeIncludeSearchPath>C:\devkitPro\libctru\include;C:\devkitPro\devkitARM\arm-none-eabi\include;include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeIncludeSearchPath>C:\devkitPro\libctru\include;C:\devkitPro\devkitARM\arm-none-eabi\include;include;C:\devkitPro\libwebp\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Netlink|Win32'">
     <BuildLog>
@@ -92,20 +92,24 @@
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\ConfigManager.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\Message.cpp" />
     <ClCompile Include="source\NKMutex.cpp" />
     <ClCompile Include="source\SocketManager.cpp" />
+    <ClCompile Include="source\ThreadManager.cpp" />
     <ClCompile Include="source\UIHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\ConfigManager.h" />
     <ClInclude Include="include\Message.h" />
     <ClInclude Include="include\NKLogger.h" />
     <ClInclude Include="include\NKMutex.h" />
     <ClInclude Include="include\SocketManager.h" />
+    <ClInclude Include="include\ThreadManager.h" />
     <ClInclude Include="include\UIHelper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

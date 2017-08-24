@@ -4,6 +4,9 @@
 
 #include <cstdint>
 #include <3ds.h>
+#include <memory>
+#include <vector>
+#include <map>
 
 //=================================================================================
 // MESSAGE PACKET
@@ -13,14 +16,20 @@
 #define IMAGE_PACKET					30
 #define IMAGE_RECEIVED_PACKET			31
 
-#define OPTION_PACKET					50
-
+#define OPT_VIDEO_QUALITY_PACKET		100
+#define OPT_STREAM_MODE_PACKET			101
+#define OPT_FPS_MODE_PACKET				102
+#define OPT_RECEIVE_INPUT_PROFILE		103
+#define OPT_CHANGE_INPUT_PROFILE		104
 
 //=================================================================================
 // Each normal input have 1 byte data for
 // 1 -> Press key
 // 0 -> Release Key
 //=================================================================================
+#define INPUT_PACKET_FRAME				90
+
+
 #define INPUT_PACKET_A					70
 #define INPUT_PACKET_B					71
 #define INPUT_PACKET_X					72
@@ -50,9 +59,38 @@
 #define INPUT_PACKET_CIRCLE				84
 #define INPUT_PACKET_CIRCLE_PRO			85
 
+
+
 //=================================================================================
 // PACKET OPTION
 //=================================================================================
+struct FramePiece_t
+{
+	u8 index = 0;
+	int pieceSize = 0;
+	void *pieceData = nullptr;
+	void Release()
+	{
+		if (pieceData != nullptr) free(pieceData);
+	}
+};
+
+
+struct Frame_t
+{
+	int w;
+	int h;
+	void *texData = nullptr;
+	int frameIndex;
+	int pieceCount;
+	int frameSize;
+	bool complete = false;
+	std::map<int, FramePiece_t*> pieces;
+	void Release()
+	{
+		if (texData != nullptr) free(texData);
+	}
+};
 
 class Message
 {
@@ -60,15 +98,16 @@ public:
 	u8 MessageCode;
 	u32 TotalSize;
 	u32 CSize;
-	char* Content;
+	char * Content;
 	u32 Received;
 
 public:
 	Message();
+	~Message();
 
 	int ReadMessageFromData(const char* data, size_t size);
 
-	void Build(const char* content, size_t contentSize, char* dest);
+	int GetFrameIndex();
 };
 
 
